@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>WorldVote</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{
+  --bg:#46178f;--card:#fff;--ink:#222;--mute:#666;--line:#ddd;
+  --red:#e21b3c;--blue:#1368ce;--yellow:#d89e00;--green:#26890c;
+  --field:#fff;--tab:#eee;--qbg:#fafafa;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+body.d-classic{--bg:#46178f}
+body.d-neon{
+  --bg:#05010f;--card:#0d0d24;--ink:#f2f2ff;--mute:#9a9ad0;--line:#2b2b57;
+  --red:#ff2d78;--blue:#00e5ff;--yellow:#ffe600;--green:#39ff88;
+  --field:#12122e;--tab:#1b1b3d;--qbg:#111130;
+}
+body.d-dark{
+  --bg:#17181c;--card:#24262b;--ink:#f2f3f5;--mute:#9aa0a6;--line:#3a3d45;
+  --red:#e34b5f;--blue:#4d8ef7;--yellow:#f0b400;--green:#3ecf4a;
+  --field:#1a1c21;--tab:#2c2f36;--qbg:#2a2d33;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:"Montserrat",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;display:flex;align-items:center;justify-content:center;padding:20px;overflow-x:hidden;position:relative;transition:background .3s}
+.shape{position:fixed;width:140px;height:140px;opacity:.9;z-index:0;transition:background .3s}
+.s1{background:var(--red);top:6%;left:-40px;transform:rotate(20deg);border-radius:18px}
+.s2{background:var(--blue);bottom:8%;right:-40px;transform:rotate(45deg);border-radius:18px}
+.s3{background:var(--yellow);top:12%;right:8%;border-radius:50%;width:70px;height:70px}
+.s4{background:var(--green);bottom:10%;left:8%;width:0;height:0;background:none;border-left:40px solid transparent;border-right:40px solid transparent;border-bottom:70px solid var(--green)}
+main{position:relative;z-index:1;width:100%;max-width:440px;text-align:center}
+.logo{color:#fff;font-size:clamp(2.4rem,9vw,3.4rem);font-weight:900;margin:0 0 18px;letter-spacing:-1px;text-shadow:0 4px 0 rgba(0,0,0,.25)}
+.card{background:var(--card);border-radius:10px;padding:22px;box-shadow:0 6px 0 rgba(0,0,0,.25);text-align:left;transition:background .3s}
+.card+.card{margin-top:16px}
+h2{margin:0 0 14px;font-size:1.25rem}
+.tabs{display:flex;gap:6px;margin-bottom:16px}
+.tab{flex:1;padding:10px;border:0;border-radius:6px;background:var(--tab);font:inherit;font-weight:700;cursor:pointer;color:var(--ink)}
+.tab.on{background:var(--blue);color:#fff}
+input,select{width:100%;padding:13px;margin-bottom:10px;border:2px solid var(--line);border-radius:6px;font:inherit;font-size:1rem;color:var(--ink);background:var(--field)}
+input:focus,select:focus{outline:none;border-color:var(--blue)}
+.code{text-align:center;font-size:1.5rem;font-weight:800;letter-spacing:4px}
+.btn{width:100%;padding:14px;border:0;border-radius:6px;font:inherit;font-size:1.05rem;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.25);background:#333}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.btn+.btn{margin-top:10px}
+.green{background:var(--green)}.blue{background:var(--blue)}.red{background:var(--red)}
+.ghost{background:var(--tab);color:var(--ink);box-shadow:0 4px 0 rgba(0,0,0,.15);font-size:1rem}
+.link{background:none;border:0;color:#fff;font:inherit;font-weight:700;margin-top:16px;cursor:pointer;text-decoration:underline}
+.err{color:var(--red);font-weight:700;min-height:1.2em;margin:0 0 8px;font-size:.9rem}
+.mute{color:var(--mute);text-align:center;margin:4px 0 14px}
+.hide{display:none}
+/* Schritt 1 */
+.designs{display:flex;gap:8px;margin-bottom:6px}
+.design{flex:1;border:2px solid var(--line);border-radius:8px;padding:8px 4px 10px;cursor:pointer;font-weight:700;font-size:.85rem;display:flex;flex-direction:column;align-items:center;gap:7px;color:var(--ink);transition:.15s}
+.design.on{border-color:var(--blue);box-shadow:0 0 0 3px rgba(19,104,206,.22)}
+.sw{width:100%;height:28px;border-radius:5px}
+.sw1{background:linear-gradient(90deg,#46178f,#1368ce)}
+.sw2{background:linear-gradient(90deg,#05010f 40%,#00e5ff)}
+.sw3{background:linear-gradient(90deg,#17181c,#5a5e68)}
+/* Schritt 2 */
+.qcard{border:2px solid var(--line);border-radius:8px;padding:12px;margin-bottom:12px;background:var(--qbg)}
+.qhead{display:flex;justify-content:space-between;align-items:center;font-weight:800;margin-bottom:8px}
+.qdel{border:0;background:var(--red);color:#fff;width:26px;height:26px;border-radius:50%;cursor:pointer;font-weight:700;line-height:1}
+.qtext{margin-bottom:10px}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.ans{display:flex;align-items:center;gap:7px;border-radius:6px;padding:7px 8px;color:#fff}
+.ans.blue{background:var(--blue)}.ans.red{background:var(--red)}
+.ans.green{background:var(--green)}.ans.yellow{background:var(--yellow);color:#3a2b00}
+.num{border:0;background:rgba(0,0,0,.28);color:#fff;border-radius:4px;padding:3px 8px;font-weight:800;font-size:.8rem;cursor:pointer;flex:none;min-width:26px}
+.num.ok{background:#fff;color:#0a7a00;box-shadow:0 0 0 2px rgba(0,0,0,.2)}
+.ans input{margin:0;padding:9px 8px;border:0;border-radius:4px;flex:1;min-width:0;font-size:.95rem;color:#222;background:#fff}
+.qfoot{display:flex;align-items:center;gap:8px}
+.qfoot .tlabel{font-weight:700;font-size:.9rem;white-space:nowrap}
+.qfoot select{margin:0;padding:9px 10px;font-size:.95rem}
+.hint{font-size:.8rem;color:var(--mute);margin:0 0 10px}
+/* Code-Screen / Lobby */
+.code-card{text-align:center}
+.code-card h2{margin-bottom:4px}
+.code-card .mute{letter-spacing:3px;font-weight:800;text-transform:uppercase;font-size:.8rem;margin-bottom:0}
+.pin{font-size:clamp(2.6rem,14vw,3.6rem);font-weight:900;letter-spacing:6px;text-align:center;margin:6px 0 12px;color:var(--bg);word-break:break-all}
+body.d-neon .pin{color:var(--blue);text-shadow:0 0 18px rgba(0,229,255,.5)}
+.joinurl{margin:2px 0 8px;font-size:.95rem;word-break:break-all}
+.players{font-weight:800;margin:6px 0 8px}
+.plist{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--qbg);border:2px solid var(--line);border-radius:20px;padding:6px 13px;font-weight:700;font-size:.9rem}
+.av{width:22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:.72rem;font-weight:800;flex:none}
+.qr{display:flex;justify-content:center;margin-bottom:14px}
+.qr img{width:170px;height:170px;background:#fff;padding:9px;border-radius:10px}
+/* Spiel */
+.timer{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.tleft{font-weight:900;font-size:1.3rem;min-width:1.6em;text-align:right}
+.track{flex:1;height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.fill{height:100%;width:100%;background:var(--green);border-radius:6px;transition:width .25s linear,background .3s}
+.qbig{font-size:1.12rem;font-weight:800;margin:0 0 14px}
+.abtn{display:block;width:100%;margin-bottom:10px;padding:16px;border:0;border-radius:8px;color:#fff;font:inherit;font-weight:800;font-size:1.02rem;cursor:pointer;text-align:left;box-shadow:0 4px 0 rgba(0,0,0,.25);display:flex;align-items:center;gap:10px}
+.abtn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.abtn .k{background:rgba(0,0,0,.28);border-radius:5px;padding:2px 9px;flex:none}
+.abtn.b{background:var(--blue)}.abtn.r{background:var(--red)}.abtn.g{background:var(--green)}
+.abtn.y{background:var(--yellow);color:#3a2b00}
+.abtn.sel{outline:4px solid var(--ink);outline-offset:-4px}
+.abtn[disabled]{opacity:.55;cursor:not-allowed}
+.res{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.res .lab{flex:1;background:var(--qbg);border:2px solid var(--line);border-radius:6px;padding:9px 11px;text-align:left;font-weight:700;display:flex;align-items:center;gap:8px}
+.res .cnt{font-weight:900;min-width:1.8em;text-align:center;font-size:1.1rem}
+.res .bar{height:6px;background:var(--line);border-radius:4px;margin-top:5px;overflow:hidden}
+.res .bar i{display:block;height:100%;background:var(--blue)}
+.res.correct .lab{border-color:var(--green);background:color-mix(in srgb,var(--green) 14%,var(--qbg))}
+.res .tick{color:var(--green);font-weight:900}
+.res .star{color:var(--yellow);font-weight:900;text-shadow:0 0 2px #000}
+.dotc{width:14px;height:14px;border-radius:4px;flex:none}
+.board{margin:0 0 14px;padding:0;list-style:none}
+.board li{display:flex;align-items:center;gap:10px;background:var(--qbg);border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin-bottom:6px;font-weight:700}
+.board li.me{border-color:var(--blue);box-shadow:0 0 0 2px rgba(19,104,206,.25)}
+.board .rank{width:28px;text-align:center;font-weight:900}
+.board .sc{margin-left:auto;font-weight:900;color:var(--blue)}
+.gain{font-weight:800;text-align:center;margin:2px 0 10px}
+.gain .up{color:var(--green)}.gain .down{color:var(--mute)}
+</style>
+</head>
+<body class="d-classic">
+<div class="shape s1"></div><div class="shape s2"></div><div class="shape s3"></div><div class="shape s4"></div>
+<main>
+  <h1 class="logo">WorldVote</h1>
+
+  <!-- ============ ANMELDUNG ============ -->
+  <section id="auth">
+    <div class="card">
+      <div class="tabs">
+        <button class="tab on" id="tLogin">Anmelden</button>
+        <button class="tab" id="tReg">Registrieren</button>
+      </div>
+      <input id="user" placeholder="Benutzername" autocomplete="username">
+      <input id="pass" type="password" placeholder="Passwort" autocomplete="current-password">
+      <input id="pass2" type="password" placeholder="Passwort wiederholen" class="hide" autocomplete="new-password">
+      <p class="err" id="authErr"></p>
+      <button class="btn blue" id="authBtn">Anmelden</button>
+    </div>
+  </section>
+
+  <!-- ============ STARTSEITE ============ -->
+  <section id="home" class="hide">
+    <div class="card">
+      <h2>Spiel beitreten</h2>
+      <input id="joinCode" class="code" placeholder="Zugangscode" inputmode="numeric" maxlength="7">
+      <p class="err" id="joinErr"></p>
+      <button class="btn green" id="joinBtn">Beitreten</button>
+    </div>
+    <div class="card">
+      <h2>Eigenes Spiel</h2>
+      <button class="btn red" id="startBtn">🎮 Spiel erstellen</button>
+    </div>
+    <button class="link" id="logout">Abmelden</button>
+  </section>
+
+  <!-- ============ SCHRITT 1 ============ -->
+  <section id="create1" class="hide">
+    <div class="card">
+      <h2>Schritt 1 – Spiel erstellen</h2>
+      <p class="mute">📝 Wie soll dein Spiel heißen?</p>
+      <input id="gName" placeholder="Minecraft Quiz" maxlength="40">
+      <p class="mute">🎨 Design auswählen</p>
+      <div class="designs">
+        <div class="design on" data-d="classic"><span class="sw sw1"></span>Classic</div>
+        <div class="design" data-d="neon"><span class="sw sw2"></span>Neon</div>
+        <div class="design" data-d="dark"><span class="sw sw3"></span>Dark</div>
+      </div>
+      <p class="err" id="c1err"></p>
+      <button class="btn blue" id="c1next">Weiter →</button>
+    </div>
+    <button class="link" id="c1back">Abbrechen</button>
+  </section>
+
+  <!-- ============ SCHRITT 2 ============ -->
+  <section id="create2" class="hide">
+    <div class="card">
+      <h2>🧩 Fragen erstellen</h2>
+      <p class="hint">Tipp: Tippe auf die Nummer 1–4, um die <b>richtige Antwort</b> (✔) zu markieren.</p>
+      <div id="qlist"></div>
+      <button class="btn ghost" id="addQ">＋ Frage hinzufügen</button>
+      <p class="err" id="c2err"></p>
+      <button class="btn green" id="createGo">🚀 Spiel starten</button>
+    </div>
+    <button class="link" id="c2back">← Zurück</button>
+  </section>
+
+  <!-- ============ SPIEL (Lobby / Fragen / Ergebnis) ============ -->
+  <section id="game" class="hide"></section>
+</main>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const SECTIONS = ['auth', 'home', 'create1', 'create2', 'game'];
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = c => String(c).slice(0, 3) + ' ' + String(c).slice(3);
+
+let token = localStorage.getItem('wv_token');
+let me = localStorage.getItem('wv_name');
+let myGame = localStorage.getItem('wv_game');
+let mode = 'login';
+let draft = { name: 'Minecraft Quiz', design: 'classic', questions: [] };
+let state = null, es = null, poller = null, ticker = null, lastJSON = '', gameErr = '';
+let joinParam = new URLSearchParams(location.search).get('join');
+
+function applyDesign(d) { document.body.className = 'd-' + (d || 'classic'); }
+function show(id) {
+  SECTIONS.forEach(s => $(s).classList.toggle('hide', s !== id));
+  if (id === 'auth' || id === 'home') applyDesign('classic');
+  window.scrollTo(0, 0);
+}
+
+/* ---------------- API ---------------- */
+async function api(path, opt) {
+  opt = opt || {};
+  const r = await fetch('/api' + path, {
+    method: opt.method || 'GET',
+    headers: Object.assign({ 'Content-Type': 'application/json' }, token ? { Authorization: 'Bearer ' + token } : {}),
+    body: opt.body ? JSON.stringify(opt.body) : undefined
+  });
+  let j = {};
+  try { j = await r.json(); } catch (e) {}
+  if (!r.ok) { const err = new Error(j.error || ('Fehler ' + r.status)); err.status = r.status; throw err; }
+  return j;
+}
+function setSession(t, n) {
+  token = t; me = n;
+  if (t) { localStorage.setItem('wv_token', t); localStorage.setItem('wv_name', n); }
+  else { localStorage.removeItem('wv_token'); localStorage.removeItem('wv_name'); }
+}
+function setMyGame(c) {
+  myGame = c;
+  if (c) localStorage.setItem('wv_game', c); else localStorage.removeItem('wv_game');
+}
+
+/* ---------------- Auth ---------------- */
+function setMode(m) {
+  mode = m;
+  $('tLogin').classList.toggle('on', m === 'login');
+  $('tReg').classList.toggle('on', m === 'reg');
+  $('pass2').classList.toggle('hide', m === 'login');
+  $('authBtn').textContent = m === 'login' ? 'Anmelden' : 'Konto erstellen';
+  $('authErr').textContent = '';
+}
+$('tLogin').onclick = () => setMode('login');
+$('tReg').onclick = () => setMode('reg');
+$('authBtn').onclick = async () => {
+  const u = $('user').value.trim(), p = $('pass').value, err = $('authErr');
+  err.textContent = '';
+  if (u.length < 3) { err.textContent = 'Benutzername: mindestens 3 Zeichen.'; return; }
+  if (p.length < 6) { err.textContent = 'Passwort: mindestens 6 Zeichen.'; return; }
+  if (mode === 'reg' && p !== $('pass2').value) { err.textContent = 'Passwörter stimmen nicht überein.'; return; }
+  $('authBtn').disabled = true;
+  try {
+    const r = await api(mode === 'reg' ? '/register' : '/login', { method: 'POST', body: { username: u, password: p } });
+    setSession(r.token, r.name);
+    enter();
+  } catch (e) { err.textContent = e.message; }
+  finally { $('authBtn').disabled = false; }
+};
+$('logout').onclick = async () => {
+  try { await api('/logout', { method: 'POST' }); } catch (e) {}
+  closeGame();
+  setSession(null, null);
+  setMyGame(null);
+  setMode('login');
+  $('pass').value = ''; $('pass2').value = '';
+  show('auth');
+};
+
+async function enter() {
+  $('pass').value = ''; $('pass2').value = ''; $('authErr').textContent = '';
+  show('home');
+  if (joinParam) {
+    const c = joinParam; joinParam = null;
+    $('joinCode').value = c;
+    await doJoin(c);
+  } else if (myGame) {
+    try { await resumeGame(); } catch (e) { setMyGame(null); }
+  }
+}
+
+/* ---------------- Beitreten / Resume ---------------- */
+async function doJoin(code) {
+  code = String(code || '').replace(/\s/g, '');
+  if (!/^\d{6}$/.test(code)) { $('joinErr').textContent = 'Bitte einen 6-stelligen Code eingeben.'; return; }
+  $('joinErr').textContent = '';
+  try {
+    await api('/games/' + code + '/join', { method: 'POST' });
+    openGame(code);
+  } catch (e) {
+    if (e.status === 404) $('joinErr').textContent = 'Code nicht gefunden.'
+    else $('joinErr').textContent = e.message;
+  }
+}
+$('joinBtn').onclick = () => doJoin($('joinCode').value);
+
+async function resumeGame() {
+  const s = await api('/games/' + myGame);
+  if (!s.inGame) { setMyGame(null); return; }
+  onState(s);
+  openGame(myGame);
+}
+
+function openGame(code) {
+  setMyGame(code);
+  gameErr = '';
+  show('game');
+  connectSSE(code);
+  startPoll(code);
+}
+function closeGame() {
+  if (es) { es.close(); es = null; }
+  if (poller) { clearInterval(poller); poller = null; }
+  if (ticker) { clearInterval(ticker); ticker = null; }
+  state = null; lastJSON = '';
+}
+function connectSSE(code) {
+  if (es) es.close();
+  es = new EventSource('/api/games/' + code + '/events?token=' + encodeURIComponent(token || ''));
+  es.onmessage = ev => {
+    let s; try { s = JSON.parse(ev.data); } catch (e) { return; }
+    onState(s);
+  };
+  es.onerror = () => {}; // EventSource verbindet automatisch neu
+}
+function startPoll(code) {
+  if (poller) clearInterval(poller);
+  poller = setInterval(async () => {
+    try { onState(await api('/games/' + code)); } catch (e) {}
+  }, 5000);
+}
+function onState(s) {
+  if (!s || s.phase === 'closed') {
+    state = { phase: 'closed' };
+    renderGame();
+    return;
+  }
+  const json = JSON.stringify(s);
+  const changed = json !== lastJSON;
+  lastJSON = json;
+  state = s;
+  applyDesign(s.design);
+  if (changed || $('game').classList.contains('hide')) renderGame();
+  manageTicker();
+}
+
+/* ---------------- Schritt 1 ---------------- */
+$('startBtn').onclick = () => {
+  draft = {
+    name: 'Minecraft Quiz', design: 'classic',
+    questions: [{ text: 'Wer hat Minecraft entwickelt?', answers: ['Mojang', 'Roblox', 'Epic Games', 'Microsoft'], time: 20, correct: 0 }]
+  };
+  $('gName').value = draft.name;
+  document.querySelectorAll('.design').forEach(el => el.classList.toggle('on', el.dataset.d === 'classic'));
+  applyDesign('classic');
+  $('c1err').textContent = '';
+  show('create1');
+};
+document.querySelectorAll('.design').forEach(el => {
+  el.onclick = () => {
+    draft.design = el.dataset.d;
+    document.querySelectorAll('.design').forEach(x => x.classList.toggle('on', x === el));
+    applyDesign(draft.design);
+  };
+});
+$('c1next').onclick = () => {
+  const n = $('gName').value.trim();
+  if (!n) { $('c1err').textContent = 'Bitte einen Spielnamen eingeben.'; return; }
+  draft.name = n;
+  $('c1err').textContent = '';
+  renderQuestions();
+  $('c2err').textContent = '';
+  show('create2');
+};
+$('c1back').onclick = () => show('home');
+
+/* ---------------- Schritt 2 ---------------- */
+const TIMES = [10, 20, 30, 60, 90];
+const COLORS = ['blue', 'red', 'green', 'yellow'];
+function renderQuestions() {
+  $('qlist').innerHTML = draft.questions.map((q, i) => `
+    <div class="qcard" data-i="${i}">
+      <div class="qhead"><span>Frage ${i + 1}</span><button class="qdel" data-del="${i}" title="Frage löschen">✕</button></div>
+      <input class="qtext" placeholder="Frage eingeben …" value="${esc(q.text)}">
+      <div class="answers">
+        ${COLORS.map((c, j) => `
+          <div class="ans ${c}">
+            <button type="button" class="num${q.correct === j ? ' ok' : ''}" data-c="${j}" title="Als richtige Antwort markieren">${q.correct === j ? '✔' : j + 1}</button>
+            <input class="a${j}" placeholder="Antwort ${j + 1}" value="${esc(q.answers[j])}">
+          </div>`).join('')}
+      </div>
+      <div class="qfoot"><span class="tlabel">⏱️ Zeitlimit</span>
+        <select class="qtime">${TIMES.map(t => `<option value="${t}"${q.time === t ? ' selected':''}>${t} Sekunden</option>`).join('')}</select>
+      </div>
+    </div>`).join('');
+}
+$('qlist').addEventListener('input', e => {
+  const card = e.target.closest('.qcard'); if (!card) return;
+  const q = draft.questions[+card.dataset.i]; if (!q) return;
+  if (e.target.classList.contains('qtext')) q.text = e.target.value;
+  else if (e.target.classList.contains('qtime')) q.time = +e.target.value;
+  else { const m = /^a(\d)$/.exec(e.target.className); if (m) q.answers[+m[1]] = e.target.value; }
+  $('c2err').textContent = '';
+});
+$('qlist').addEventListener('click', e => {
+  const card = e.target.closest('.qcard'); if (!card) return;
+  const del = e.target.closest('[data-del]');
+  if (del) {
+    if (draft.questions.length === 1) { $('c2err').textContent = 'Mindestens eine Frage behalten.'; return; }
+    draft.questions.splice(+del.dataset.del, 1);
+    renderQuestions();
+    return;
+  }
+  const num = e.target.closest('[data-c]');
+  if (num) {
+    const q = draft.questions[+card.dataset.i];
+    q.correct = +num.dataset.c;
+    card.querySelectorAll('.num').forEach((n, idx) => {
+      const ok = idx === q.correct;
+      n.className = 'num' + (ok ? ' ok' : '');
+      n.textContent = ok ? '✔' : idx + 1;
+    });
+  }
+});
+$('addQ').onclick = () => {
+  draft.questions.push({ text: '', answers: ['', '', '', ''], time: 20, correct: 0 });
+  renderQuestions();
+  $('c2err').textContent = '';
+  const cards = $('qlist').querySelectorAll('.qcard');
+  const last = cards[cards.length - 1];
+  if (last) { last.scrollIntoView({ behavior: 'smooth', block: 'center' }); last.querySelector('.qtext').focus(); }
+};
+$('c2back').onclick = () => show('create1');
+
+$('createGo').onclick = async () => {
+  const bad = draft.questions.findIndex(q => !q.text.trim() || q.answers.some(a => !a.trim()));
+  if (bad >= 0) {
+    $('c2err').textContent = `Frage ${bad + 1}: Text und alle 4 Antworten ausfüllen.`;
+    const el = $('qlist').querySelector(`.qcard[data-i="${bad}"]`);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.querySelector('.qtext').focus(); }
+    return;
+  }
+  $('createGo').disabled = true;
+  try {
+    const g = await api('/games', { method: 'POST', body: draft });
+    onState(g);
+    openGame(g.code);
+  } catch (e) { $('c2err').textContent = e.message; }
+  finally { $('createGo').disabled = false; }
+};
+
+/* ---------------- Spiel: Rendering ---------------- */
+function errLine() { return gameErr ? `<p class="err">${esc(gameErr)}</p>` : '<p class="err"></p>'; }
+function chips(players) {
+  if (!players.length) return '<p class="mute">Noch keine Spieler …</p>';
+  return '<div class="plist">' + players.map(p =>
+    `<span class="chip"><span class="av">${esc((p.name || '?')[0]).toUpperCase()}</span>${esc(p.name)}</span>`).join('') + '</div>';
+}
+function timerHTML(s) {
+  return `<div class="timer"><span class="tleft" id="tleft">–</span>
+    <div class="track"><div class="fill" id="tfill"></div></div></div>`;
+}
+function scoreBoard(s) {
+  const sorted = s.players.slice().sort((a, b) => b.score - a.score);
+  return '<ul class="board">' + sorted.map((p, i) => `
+    <li class="${p.name === s.me ? 'me' : ''}">
+      <span class="rank">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}</span>
+      <span>${esc(p.name)}${p.name === s.hostName ? ' 👑' : ''}</span>
+      <span class="sc">${p.score} P</span>
+    </li>`).join('') + '</ul>';
+}
+function resultRows(s, live) {
+  const results = s.results || [0, 0, 0, 0];
+  const total = Math.max(1, results.reduce((a, b) => a + b, 0));
+  const correct = s.current && s.current.correct;
+  return s.current.answers.map((a, i) => `
+    <div class="res${(!live && correct === i) ? ' correct' : ''}">
+      <div class="lab" style="border-left:8px solid var(--${COLORS[i] === 'blue' ? 'blue' : COLORS[i] === 'red' ? 'red' : COLORS[i] === 'green' ? 'green' : 'yellow'})">
+        <span class="dotc" style="background:var(--${COLORS[i] === 'blue' ? 'blue' : COLORS[i] === 'red' ? 'red' : COLORS[i] === 'green' ? 'green' : 'yellow'})"></span>
+        <span>${esc(a)}</span>
+        ${(!live && correct === i) ? '<span class="tick">✔</span>' : ''}
+        ${(!live && s.myVote === i) ? '<span class="star">★</span>' : ''}
+      </div>
+      <div class="cnt">${results[i] || 0}</div>
+    </div>`).join('');
+}
+
+function renderGame() {
+  const s = state;
+  if (!s) return;
+  let html = '';
+  if (s.phase === 'closed') {
+    html = `<div class="card code-card" style="text-align:center">
+      <h2>Das Spiel wurde beendet.</h2>
+      <p class="mute">Der Gastgeber hat das Spiel geschlossen.</p>
+      <button class="btn blue" data-act="home">← Zur Startseite</button>
+    </div>`;
+  } else if (s.phase === 'lobby') {
+    html = s.isHost ? lobbyHost(s) : lobbyPlayer(s);
+  } else if (s.phase === 'question') {
+    html = s.isHost ? questionHost(s) : questionPlayer(s);
+  } else if (s.phase === 'reveal') {
+    html = revealView(s);
+  } else if (s.phase === 'final') {
+    html = finalView(s);
+  }
+  $('game').innerHTML = html;
+  manageTicker();
+}
+
+function lobbyHost(s) {
+  const join = location.origin + '/?join=' + s.code;
+  return `
+  <div class="card code-card">
+    <h2>🎮 Dein Spiel ist bereit!</h2>
+    <p class="mute">Zugangscode</p>
+    <div class="pin">${fmt(s.code)}</div>
+    <p class="joinurl">📱 <b>${esc(join.replace(/^https?:\/\//, ''))}</b></p>
+    <p class="players">👥 ${s.players.length} Spieler warten</p>
+    ${chips(s.players)}
+    <div class="qr"><img src="/api/qr?data=${encodeURIComponent(join)}" alt="QR-Code: ${esc(join)}"></div>
+    <button class="btn green" data-act="start">▶️ Spiel starten</button>
+    <button class="btn red" data-act="close">Spiel beenden</button>
+    ${errLine()}
+  </div>`;
+}
+function lobbyPlayer(s) {
+  return `
+  <div class="card code-card">
+    <h2>🎮 Du bist dabei, ${esc(s.me)}!</h2>
+    <p class="mute">${esc(s.name)}</p>
+    <div class="pin">${fmt(s.code)}</div>
+    <p class="players">👥 ${s.players.length} Spieler warten</p>
+    ${chips(s.players)}
+    <p class="mute">Warte, bis das Spiel startet …</p>
+    <button class="btn red" data-act="leave">Spiel verlassen</button>
+    ${errLine()}
+  </div>`;
+}
+function questionHost(s) {
+  return `
+  <div class="card">
+    <h2>Frage ${s.qIndex + 1} / ${s.questionCount} · 👥 ${s.answered}/${s.totalPlayers} abgestimmt</h2>
+    ${timerHTML(s)}
+    <p class="qbig">${esc(s.current.text)}</p>
+    ${resultRows(s, true)}
+    <button class="btn ghost" data-act="reveal">⏸ Sofort auflösen</button>
+    ${errLine()}
+  </div>`;
+}
+function questionPlayer(s) {
+  const voted = s.myVote !== null && s.myVote !== undefined;
+  const body = voted
+    ? `<p class="gain"><span class="up">✓ Abgestimmt!</span><br><span class="down">Warte auf die anderen …</span></p>
+       <div class="res"><div class="lab" style="border-left:8px solid var(--blue)"><span>${esc(s.current.answers[s.myVote])}</span><span class="star">★</span></div><div class="cnt"></div></div>`
+    : s.current.answers.map((a, i) => `
+        <button class="abtn ${['b','r','g','y'][i]}" data-act="answer" data-i="${i}">
+          <span class="k">${i + 1}</span><span>${esc(a)}</span>
+        </button>`).join('');
+  return `
+  <div class="card">
+    <h2>Frage ${s.qIndex + 1} / ${s.questionCount} · ${s.answered}/${s.totalPlayers} abgestimmt</h2>
+    ${timerHTML(s)}
+    <p class="qbig">${esc(s.current.text)}</p>
+    ${body}
+    ${errLine()}
+  </div>`;
+}
+function revealView(s) {
+  const gain = s.awarded && s.awarded[s.me];
+  const gainHTML = s.awarded
+    ? (gain > 0
+        ? `<p class="gain"><span class="up">✅ Richtig! +${gain} Punkte</span></p>`
+        : `<p class="gain"><span class="down">❌ Keine Punkte diese Runde</span></p>`)
+    : '';
+  const controls = s.isHost
+    ? `<button class="btn blue" data-act="next">${s.qIndex + 1 < s.questionCount ? 'Nächste Frage ➜' : '🏆 Ergebnis anzeigen'}</button>`
+    : '<p class="mute">Warte auf den Gastgeber …</p>';
+  return `
+  <div class="card">
+    <h2>Frage ${s.qIndex + 1} / ${s.questionCount} – Ergebnis</h2>
+    <p class="qbig">${esc(s.current.text)}</p>
+    ${resultRows(s, false)}
+    ${gainHTML}
+    ${scoreBoard(s)}
+    ${controls}
+    ${errLine()}
+  </div>`;
+}
+function finalView(s) {
+  const controls = s.isHost
+    ? `<button class="btn red" data-act="close">Spiel beenden</button>`
+    : `<button class="btn ghost" data-act="leave">Spiel verlassen</button>`;
+  return `
+  <div class="card code-card">
+    <h2>🏆 Finale Platzierung</h2>
+    <p class="mute">${esc(s.name)}</p>
+    ${scoreBoard(s)}
+    ${controls}
+    ${errLine()}
+  </div>`;
+}
+
+/* ---------------- Spiel: Interaktion ---------------- */
+$('game').addEventListener('click', async e => {
+  const b = e.target.closest('[data-act]');
+  if (!b || !state) return;
+  const act = b.dataset.act;
+  gameErr = '';
+  b.disabled = true;
+  try {
+    if (act === 'answer') {
+      onState(await api('/games/' + state.code + '/answer', { method: 'POST', body: { choice: +b.dataset.i } }));
+    } else if (act === 'leave') {
+      await api('/games/' + state.code + '/leave', { method: 'POST' });
+      closeGame(); setMyGame(null); show('home');
+    } else if (act === 'close') {
+      if (!confirm('Spiel wirklich beenden?')) { b.disabled = false; return; }
+      await api('/games/' + state.code + '/host', { method: 'POST', body: { action: 'close' } });
+      closeGame(); setMyGame(null); show('home');
+    } else if (act === 'start' || act === 'reveal' || act === 'next') {
+      onState(await api('/games/' + state.code + '/host', { method: 'POST', body: { action: act } }));
+    } else if (act === 'home') {
+      closeGame(); setMyGame(null); show('home');
+      return;
+    }
+  } catch (err) {
+    gameErr = err.message;
+    renderGame();
+  } finally {
+    b.disabled = false;
+  }
+});
+
+/* Timer-Anzeige */
+function manageTicker() {
+  const should = state && state.phase === 'question';
+  if (should && !ticker) ticker = setInterval(tickTimer, 250);
+  if (!should && ticker) { clearInterval(ticker); ticker = null; }
+  if (should) tickTimer();
+}
+function tickTimer() {
+  const el = $('tleft'), f = $('tfill');
+  if (!el || !state || state.phase !== 'question' || !state.current) return;
+  const total = state.current.time * 1000;
+  const left = Math.max(0, state.questionEndsAt - Date.now());
+  el.textContent = Math.ceil(left / 1000);
+  if (f) {
+    const pct = Math.max(0, Math.min(100, (left / total) * 100));
+    f.style.width = pct + '%';
+    f.style.background = pct < 25 ? 'var(--red)' : (pct < 50 ? 'var(--yellow)' : 'var(--green)');
+  }
+}
+
+/* ---------------- Start ---------------- */
+(async function boot() {
+  if (!token) {
+    if (joinParam) $('authErr').textContent = 'Melde dich an, um dem Spiel beizutreten.';
+    return show('auth');
+  }
+  try {
+    const r = await api('/me');
+    me = r.name;
+    localStorage.setItem('wv_name', me);
+    await enter();
+  } catch (e) {
+    setSession(null, null);
+    show('auth');
+  }
+})();
+</script>
+</body>
+</html>
