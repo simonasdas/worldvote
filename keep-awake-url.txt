@@ -1,0 +1,5 @@
+# Trage hier deine Render-Adresse ein (genau eine Zeile, ohne # am Anfang).
+# Sobald der Eintrag steht, pingt GitHub alle 7 Minuten deinen Server an.
+#
+# Beispiel:
+# https://worldvote-xxxx.onrender.com

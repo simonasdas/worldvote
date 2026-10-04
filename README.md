@@ -55,6 +55,29 @@ nutzen automatisch diese Adresse.
 > `data.json` bei jedem Redeploy gelöscht (Konten/Spiele gehen verloren).
 > Für Dauerbetrieb: paid Plan oder eine echte Datenbank (z. B. Postgres).
 
+### 3. Server nie einschlafen lassen (Wachhalter)
+
+Damit der kostenlose Render-Service **permanent wach** bleibt, pingt ein
+GitHub-Actions-Workflow (`/.github/workflows/keep-awake.yml`) die Seite
+**alle 7 Minuten** an – das läuft 24/7 auf GitHubs Servern, auch wenn
+dein PC aus ist.
+
+Einrichten (einmalig, 1 Minute):
+
+1. Gib mir deine Render-Adresse – oder trage sie selbst ein. Entweder:
+   - **Repo-Variable:** GitHub → dein Repo → *Settings* → *Secrets and
+     variables* → *Actions* → Tab *Variables* → *New repository variable*
+     - Name: `KEEP_AWAKE_URL`, Value: `https://worldvote-xxxx.onrender.com`
+   - **oder** in die Datei `keep-awake-url.txt` schreiben (eine Zeile) und pushen
+2. Danach unter *Actions* → *🔋 Server wach halten* den ersten Lauf
+   manuell mit *Run workflow* testen → grün ✓ = läuft
+
+> ⚠️ Bei **öffentlichen** Repos deaktiviert GitHub geplante Workflows, wenn
+> 60 Tage lang nichts im Repo passiert ist. Abhilfe: Repo auf **privat**
+> stellen (geht beim kostenlosen Plan) oder alle ~60 Tage etwas pushen.
+> Alternativ: [uptimerobot.com](https://uptimerobot.com) (kostenlos, 5-Min-Intervall)
+> auf deine Render-Adresse zeigen lassen.
+
 ## Spielablauf
 
 1. **Gastgeber:** Anmelden → *Spiel erstellen* → Name, Design, Fragen → *Spiel starten*
