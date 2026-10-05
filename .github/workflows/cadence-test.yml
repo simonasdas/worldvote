@@ -1,0 +1,19 @@
+name: ⏱️ Cron-Kadenz-Test
+
+# Nur zur Diagnose: misst, wie oft GitHub einen Minutencron wirklich ausführt.
+# Wird nach der Messung wieder entfernt.
+
+on:
+  schedule:
+    - cron: '* * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - run: echo "Tick um $(date -u +%H:%M:%S) UTC"
