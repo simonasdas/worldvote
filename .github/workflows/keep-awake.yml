@@ -5,11 +5,12 @@ name: 🔋 Server wach halten
 
 on:
   schedule:
-    - cron: '*/7 * * * *'   # alle 7 Minuten (UTC)
+    - cron: '*/5 * * * *'   # alle 5 Minuten (UTC) – Puffer gegen GitHub-Verzögerungen
+    - cron: '17 6 * * 1'     # wöchentlich (Mo 06:17 UTC) für den Aktivitäts-Commit
   workflow_dispatch:         # manuell testbar über "Run workflow"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: keep-awake
@@ -55,3 +56,13 @@ jobs:
           done
           echo "❌ Server antwortet nicht mit HTTP 200 – Service evtl. noch nicht deployed, im Sleep oder gelöscht."
           exit 1
+
+      - name: Wöchentlicher Aktivitäts-Commit (verhindert 60-Tage-Deaktivierung)
+        if: github.event.schedule == '17 6 * * 1'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          date -u '+%Y-%m-%d %H:%M UTC – WorldVote-Server wach gehalten, Repo aktiv.' > keep-awake-status.txt
+          git add keep-awake-status.txt
+          git commit -m "chore: wöchentlicher Keep-Awake-Aktivitäts-Commit" || echo "nichts zu committen"
+          git push
